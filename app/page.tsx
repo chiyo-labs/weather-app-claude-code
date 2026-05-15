@@ -4,12 +4,15 @@ import { useMemo, useState } from "react";
 import DateSelector from "@/components/DateSelector";
 import DaySummary from "@/components/DaySummary";
 import ForecastCard from "@/components/ForecastCard";
+import LifeAdvice from "@/components/LifeAdvice";
+import SavedCities from "@/components/SavedCities";
 import SearchBar from "@/components/SearchBar";
 import {
   type ForecastPayload,
   groupByDate,
   isApiError,
 } from "@/lib/weather";
+import { useSavedCities } from "@/lib/useSavedCities";
 
 export default function Home() {
   const [data, setData] = useState<ForecastPayload | null>(null);
@@ -17,6 +20,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [pickedDate, setPickedDate] = useState<string | null>(null);
   const [lastCity, setLastCity] = useState<string>("");
+
+  const { cities, saveCity, removeCity } = useSavedCities();
 
   const grouped = useMemo(() => (data ? groupByDate(data.list) : {}), [data]);
   const availableDates = useMemo(() => Object.keys(grouped).sort(), [grouped]);
@@ -51,6 +56,8 @@ export default function Home() {
 
   const dayEntries = selectedDate ? grouped[selectedDate] ?? [] : [];
 
+  const currentCityName = data?.city.name ?? "";
+
   return (
     <div className="flex flex-1 flex-col items-center bg-gradient-to-b from-sky-50 to-white px-4 py-8 dark:from-zinc-950 dark:to-black sm:px-6 sm:py-12">
       <main className="flex w-full max-w-3xl flex-col gap-6">
@@ -67,6 +74,14 @@ export default function Home() {
           initialCity={lastCity}
           loading={loading}
           onSearch={handleSearch}
+        />
+
+        <SavedCities
+          cities={cities}
+          currentCity={currentCityName}
+          onSelect={handleSearch}
+          onSave={() => saveCity(currentCityName)}
+          onRemove={removeCity}
         />
 
         {loading && (
@@ -110,6 +125,10 @@ export default function Home() {
                 dateKey={selectedDate}
                 entries={dayEntries}
               />
+            )}
+
+            {selectedDate && dayEntries.length > 0 && (
+              <LifeAdvice entries={dayEntries} />
             )}
 
             <section aria-label="時間ごとの予報">

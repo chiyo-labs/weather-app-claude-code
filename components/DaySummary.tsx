@@ -1,5 +1,6 @@
 import type { ForecastEntry } from "@/lib/weather";
 import { formatJapaneseDate, summarizeDay } from "@/lib/weather";
+import { getWeatherTheme } from "@/lib/weatherTheme";
 
 type Props = {
   cityName: string;
@@ -13,9 +14,10 @@ export default function DaySummary({ cityName, country, dateKey, entries }: Prop
   const iconUrl = representative.weather.icon
     ? `https://openweathermap.org/img/wn/${representative.weather.icon}@2x.png`
     : null;
+  const theme = getWeatherTheme(representative.weather.id);
 
   return (
-    <section className="rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 p-5 text-white shadow-lg sm:p-6">
+    <section className={`rounded-2xl bg-gradient-to-br ${theme.gradient} p-5 text-white shadow-lg sm:p-6`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-xl font-bold sm:text-2xl">
           {cityName}
